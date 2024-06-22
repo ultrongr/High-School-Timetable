@@ -68,9 +68,29 @@ class Timetable:
 
     def set_objective(self):
 
+        
+        
+        params = {
+            "coverage": 1000,
+            "fewer_days": 10,
+            "no_gaps": 1,
+        }
+
         # Maximize the number of classes taught
-        all_vars = [self.K[i][j][k][l] for i in range(self.number_of_profs) for j in range(self.number_of_days) for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
-        self.model.maximize(sum(all_vars))
+        coverage_terms = [self.K[i][j][k][l] for i in range(self.number_of_profs) for j in range(self.number_of_days) for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
+
+        # Minimize the number of days a professor teaches
+        fewer_days_terms = []
+
+        # Minimize the number of gaps for each proffessor in every day
+        fewer_gaps_terms = []
+
+        objective_sum = params["coverage"]*sum(coverage_terms)
+        objective_sum+= params["fewer_days"]*sum(fewer_days_terms)
+        objective_sum+= params["no_gaps"]*sum(fewer_gaps_terms)
+
+        self.model.maximize(objective_sum)
+        
 
     def print_classes(self):
         if not self.solved:
@@ -102,13 +122,3 @@ class Timetable:
 if __name__ == '__main__':
     
     timetable = Timetable(inp.number_of_professors, inp.number_of_days, len(inp.number_of_hours_per_day), inp.number_of_classes)
-
-    # for i in range(inp.number_of_professors):
-    #     for l in range(inp.number_of_hours):
-    #         for k in range(inp.number_of_days):
-    #             for j in range(inp.number_of_classes):
-    #                 if timetable.K[i][k][l][j].primal == 1:
-    #                     print(f"Professor {i} teaches class {j} on day {inp.days[k]} at hour {l}")
-    #                     print(f"K_{i}_{k}_{l}_{j} = {timetable.K[i][k][l][j].primal}")
-    #                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    
