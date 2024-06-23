@@ -16,8 +16,10 @@ class Timetable:
         self.model = pymprog.model('Timetable')
         
         self.create_timetable()
+
         self.create_physical_constraints()
         self.create_material_coverage__constraints()
+        self.create_max_hours_per_day_constraints()
         
         self.set_objective()
         self.model.solve()
@@ -65,6 +67,16 @@ class Timetable:
                 # sum(self.K[i, :, :, l]) == inp.required_hours_per_professor_per_class[i][l]
                 all_hours_in_week = [self.K[i][j][k][l] for j in range(self.number_of_days) for k in range(self.number_of_hours)]
                 sum(all_hours_in_week) == inp.required_hours_per_professor_per_class[i][l]
+
+    def create_max_hours_per_day_constraints(self):
+        """Contraints of the type:
+        -A proffessor can only teach up to x hours per day for a class
+        Are added here        
+        """
+        for i in range(self.number_of_profs):
+            for j in range(self.number_of_days):
+                for l in range(self.number_of_classes):
+                    sum(self.K[i, j, :, l]) <= inp.max_hours_per_professor_per_class_per_day[i][l]
 
     def set_objective(self):
 
