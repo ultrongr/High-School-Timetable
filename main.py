@@ -20,6 +20,7 @@ class Timetable:
         self.create_physical_constraints()
         self.create_material_coverage__constraints()
         self.create_max_hours_per_day_constraints()
+        self.create_unavailable_hours_constraints()
         
         self.set_objective()
         self.model.solve()
@@ -67,6 +68,7 @@ class Timetable:
                 # sum(self.K[i, :, :, l]) == inp.required_hours_per_professor_per_class[i][l]
                 all_hours_in_week = [self.K[i][j][k][l] for j in range(self.number_of_days) for k in range(self.number_of_hours)]
                 sum(all_hours_in_week) == inp.required_hours_per_professor_per_class[i][l]
+                # sum(all_hours_in_week) <= inp.required_hours_per_professor_per_class[i][l] # Use if you want to get uncompleted timetables as result
 
     def create_max_hours_per_day_constraints(self):
         """Contraints of the type:
@@ -77,6 +79,19 @@ class Timetable:
             for j in range(self.number_of_days):
                 for l in range(self.number_of_classes):
                     sum(self.K[i, j, :, l]) <= inp.max_hours_per_professor_per_class_per_day[i][l]
+
+    def create_unavailable_hours_constraints(self):
+        """Contraints of the type:
+        -A proffessor cannot teach any class at a specific time
+        Are added here        
+        """
+        for i in range(self.number_of_profs):
+            for j in range(self.number_of_days):
+                for k in range(self.number_of_hours):
+                    for l in range(self.number_of_classes):
+                        if (j, k) in inp.unavailable_hours_per_professor[i]:
+                            self.K[i][j][k][l] == 0
+
 
     def set_objective(self):
 
@@ -121,7 +136,7 @@ class Timetable:
                 out += f"{inp.days_initials[i]}\t"
             out += "\n"
             for i in range(self.number_of_hours):
-                out += f"{i+1}\t"
+                out += f"{i}\t"
                 for j in range(self.number_of_days):
                     out += f"{time_slots[j][i]}\t"
                 out += "\n"
