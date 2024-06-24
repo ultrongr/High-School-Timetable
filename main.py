@@ -26,6 +26,7 @@ class Timetable:
         self.model.solve()
         self.solved = True
         self.print_classes()
+        self.print_stats()
     
     def create_timetable(self):
         
@@ -98,8 +99,8 @@ class Timetable:
         
         
         params = {
-            "coverage": 1000,
-            "fewer_days": 10,
+            "coverage": 1e5,
+            "fewer_days": 1e2,
             "no_gaps": 1,
         }
 
@@ -108,12 +109,25 @@ class Timetable:
 
         # Minimize the number of days a professor teaches
         fewer_days_terms = []
+        for i in range(self.number_of_profs):
+
+            for d in range(self.number_of_days):
+                ld_terms = [self.K[i][d][k][l] for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
+                ld = sum(ld_terms)
+
+                dd = self.model.var(f"dd_{i}_{d}", kind=int, bounds=(0, 1))
+
+                ld>=dd
+                ld<=(self.number_of_hours+1)*dd
+
+                fewer_days_terms.append(dd)
+
 
         # Minimize the number of gaps for each proffessor in every day
         fewer_gaps_terms = []
 
         objective_sum = params["coverage"]*sum(coverage_terms)
-        objective_sum+= params["fewer_days"]*sum(fewer_days_terms)
+        objective_sum-= params["fewer_days"]*sum(fewer_days_terms)
         objective_sum+= params["no_gaps"]*sum(fewer_gaps_terms)
 
         self.model.maximize(objective_sum)
@@ -123,8 +137,9 @@ class Timetable:
         if not self.solved:
             print("Model has not been solved yet")
             return
+        class_names = ["Class A", "Class B", "Class C"]
         for c in range(self.number_of_classes):
-            out=""
+            out=f"{class_names[c]}:\n\n"
             time_slots = [[-1 for _ in range(self.number_of_hours)] for _ in range(self.number_of_days)]
             for i in range(self.number_of_profs):
                 for j in range(self.number_of_days):
@@ -143,7 +158,26 @@ class Timetable:
             out+="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
             print(out)
 
+    def print_stats(self):
+        if not self.solved:
+            print("Model has not been solved yet")
+            return
         
+        for i in range(self.number_of_profs):
+            number_of_days_teaching = 0
+            for j in range(self.number_of_days):
+                taught = False
+                for k in range(self.number_of_hours):
+                    for l in range(self.number_of_classes):
+                        if self.K[i][j][k][l].primal == 1:
+                            number_of_days_teaching+=1
+                            taught = True
+                            break
+                    if taught:
+                        break
+                            
+            print(f"Professor {i} teaches {number_of_days_teaching} days a week")
+
 
 
 if __name__ == '__main__':
