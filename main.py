@@ -99,9 +99,10 @@ class Timetable:
         
         
         params = {
-            "coverage": 1e5,
-            "fewer_days": 1e2,
+            "coverage": 0,
+            "fewer_days": 10,
             "no_gaps": 1,
+            "preferences": 1
         }
 
         # Maximize the number of classes taught
@@ -109,26 +110,24 @@ class Timetable:
 
         # Minimize the number of days a professor teaches
         fewer_days_terms = []
-        for i in range(self.number_of_profs):
-
-            for d in range(self.number_of_days):
-                ld_terms = [self.K[i][d][k][l] for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
-                ld = sum(ld_terms)
-
-                dd = self.model.var(f"dd_{i}_{d}", kind=int, bounds=(0, 1))
-
-                ld>=dd
-                ld<=(self.number_of_hours+1)*dd
-
-                fewer_days_terms.append(dd)
 
 
         # Minimize the number of gaps for each proffessor in every day
         fewer_gaps_terms = []
 
+        # Add preferences like some proffessors prefer to teach at certain days
+        preferences_terms = []
+        for i in range(self.number_of_profs):
+            ind = i%5
+            terms = [self.K[i][ind][k][l]  for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
+            preferences_terms+=terms
+            print(f"Professor {i} prefers to teach on day {ind}")
+            
+
         objective_sum = params["coverage"]*sum(coverage_terms)
         objective_sum-= params["fewer_days"]*sum(fewer_days_terms)
         objective_sum+= params["no_gaps"]*sum(fewer_gaps_terms)
+        objective_sum+= params["preferences"]*sum(preferences_terms)
 
         self.model.maximize(objective_sum)
         
@@ -164,19 +163,18 @@ class Timetable:
             return
         
         for i in range(self.number_of_profs):
-            number_of_days_teaching = 0
+            preffered_day = i%5
+
             for j in range(self.number_of_days):
-                taught = False
+                if j != preffered_day:
+                    continue
+                counter=0
                 for k in range(self.number_of_hours):
                     for l in range(self.number_of_classes):
                         if self.K[i][j][k][l].primal == 1:
-                            number_of_days_teaching+=1
-                            taught = True
-                            break
-                    if taught:
-                        break
-                            
-            print(f"Professor {i} teaches {number_of_days_teaching} days a week")
+                            counter+=1
+                total_hours= sum(inp.required_hours_per_professor_per_class[i])
+                print(f"Professor {i} teaches {counter} classes on day {j}. Total hours: {total_hours}")
 
 
 
