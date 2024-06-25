@@ -1,6 +1,7 @@
 import numpy as np 
 import pymprog
-import input_data as inp
+# import input_data as inp
+import input_data_non_complete as inp
 
 
 class Timetable:
@@ -23,8 +24,7 @@ class Timetable:
         self.create_unavailable_hours_constraints()
         
         self.set_objective()
-        self.model.solve()
-        self.solved = True
+
         
     
     def create_timetable(self):
@@ -69,8 +69,8 @@ class Timetable:
 
 
                 all_hours_in_week = [self.K[i][d][h][c] for d in range(self.number_of_days) for h in range(self.number_of_hours)]
-                sum(all_hours_in_week) == inp.required_hours_per_professor_per_class[i][c]
-                # sum(all_hours_in_week) <= inp.required_hours_per_professor_per_class[i][l] # Use if you want to get uncompleted timetables as result
+                # sum(all_hours_in_week) == inp.required_hours_per_professor_per_class[i][c]
+                sum(all_hours_in_week) <= inp.required_hours_per_professor_per_class[i][c] # Use if you want to get uncompleted timetables as result
 
     def create_max_hours_per_day_constraints(self):
         """Contraints of the type:
@@ -104,8 +104,8 @@ class Timetable:
         params = {
             "coverage": 100,
             "preferred_days": 1,
-            "avoidance_days": 0.5,
-            "preferred_hours": 1,
+            "avoidance_days": 1,
+            "preferred_hours": 0.5,
             "avoidance_hours": 0.5,
             
         }
@@ -117,36 +117,39 @@ class Timetable:
         # Add preferences like some professors prefer to teach at certain days
         preferences_days_terms = []
         for i in range(self.number_of_profs):
-            ind = i%5
-            terms = [self.K[i][ind][h][c]  for h in range(self.number_of_hours) for c in range(self.number_of_classes)]
-            preferences_days_terms+=terms
-            print(f"Professor {i} prefers to teach on day {ind}")
+            for d in inp.preferred_days_per_professor[i]:
+                for h in range(self.number_of_hours):
+                    for c in range(self.number_of_classes):
+                        preferences_days_terms.append(self.K[i][d][h][c])
+            
         
-        # Add terms signifying that a professor wishes to avoid teaching at a certain day
+        # Add preferences like some professors prefer not to teach at certain days
         avoidance_days_terms = []
         for i in range(self.number_of_profs):
-            ind = (i+1)%5
-            terms = [self.K[i][ind][k][l]  for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
-            avoidance_days_terms+=terms
-            print(f"Professor {i} avoids teaching on day {ind}")
+            for d in inp.days_to_avoid_per_professor[i]:
+                for h in range(self.number_of_hours):
+                    for c in range(self.number_of_classes):
+                        avoidance_days_terms.append(self.K[i][d][h][c])
         
-        # Add terms signifying that a professor prefers to teach at a certain hour
+        # Add preferences like some professors prefer to teach at certain hours
         preferences_hours_terms = []
         for i in range(self.number_of_profs):
-            for j in range(self.number_of_days):
-                ind = i%5
-                terms = [self.K[i][j][ind][l]  for l in range(self.number_of_classes)]
-                preferences_hours_terms+=terms
-            print(f"Professor {i} prefers to teach on hour {ind}")
+            for d in range(self.number_of_days):
+                for h in inp.preferred_hours_per_professor[i]:
+                    for c in range(self.number_of_classes):
+                        preferences_hours_terms.append(self.K[i][d][h][c])
         
-        # Add terms signifying that a professor wishes to avoid teaching at a certain hour
+        # Add preferences like some professors prefer not to teach at certain hours
         avoidance_hours_terms = []
         for i in range(self.number_of_profs):
-            for j in range(self.number_of_days):
-                ind = (i+1)%5
-                terms = [self.K[i][j][ind][l]  for l in range(self.number_of_classes)]
-                avoidance_hours_terms+=terms
-            print(f"Professor {i} avoids teaching on hour {ind}")
+            for d in range(self.number_of_days):
+                for h in inp.hours_to_avoid_per_professor[i]:
+                    for c in range(self.number_of_classes):
+                        avoidance_hours_terms.append(self.K[i][d][h][c])
+        
+
+
+
         
         
             
@@ -239,6 +242,7 @@ class Timetable:
 
 if __name__ == '__main__':
     
-    timetable = Timetable(inp.number_of_professors, inp.number_of_days, len(inp.number_of_hours_per_day), inp.number_of_classes)
+    timetable = Timetable(inp.number_of_professors, inp.number_of_days, inp.number_of_hours, inp.number_of_classes)
+    timetable.solve()
     timetable.print_classes()
     timetable.print_stats()

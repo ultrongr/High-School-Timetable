@@ -45,13 +45,13 @@ for class_id in range(number_of_classes):
 ## while the professor with id 1 is unavailable on Friday (day 4) hour 4
 unavailable_hours_per_professor = [[] for _ in range(number_of_professors)]
 for professor_id in range(number_of_professors):
-    # for i in range(5): # Used to create a timetable with almost no unavailable hours
-    #     for j in range(4):
-    #         unavailable_hours_per_professor[professor_id].append((i, j))
-    for _ in range(np.random.randint(2,10)): # Number of unavailable hours
-        day = np.random.randint(0, number_of_days)
-        hour = np.random.randint(0, number_of_hours)
-        unavailable_hours_per_professor[professor_id].append((day, hour))
+    for i in range(5): # Used to create a timetable with almost no unavailable hours
+        for j in range(2):
+            unavailable_hours_per_professor[professor_id].append((i, j))
+    # for _ in range(np.random.randint(2,10)): # Number of unavailable hours
+    #     day = np.random.randint(0, number_of_days)
+    #     hour = np.random.randint(0, number_of_hours)
+    #     unavailable_hours_per_professor[professor_id].append((day, hour))
 
 
 ## Create the preferred days for each professor
