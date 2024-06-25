@@ -25,8 +25,7 @@ class Timetable:
         self.set_objective()
         self.model.solve()
         self.solved = True
-        self.print_classes()
-        self.print_stats()
+        
     
     def create_timetable(self):
         
@@ -36,7 +35,9 @@ class Timetable:
                     for l in range(self.number_of_classes):
                         self.K[i][j][k][l] = self.model.var(f"K_{i}_{j}_{k}_{l}", kind=int, bounds=(0, 1))
     
-
+    def solve(self):
+        self.model.solve()
+        self.solved = True
 
     def create_physical_constraints(self):
         """Contraints of the type:
@@ -47,15 +48,15 @@ class Timetable:
 
         # No proffessor can teach 2 classes at the same time
         for i in range(self.number_of_profs):
-            for j in range(self.number_of_days):
-                for k in range(self.number_of_hours):
-                    sum(self.K[i][j][k]) <= 1
+            for d in range(self.number_of_days):
+                for h in range(self.number_of_hours):
+                    sum(self.K[i][d][h]) <= 1
         
         # No class can be taught by 2 proffessors at the same time
-        for j in range(self.number_of_days):
-            for k in range(self.number_of_hours):
-                for l in range(self.number_of_classes):
-                    sum(self.K[:, j, k, l]) <= 1
+        for d in range(self.number_of_days):
+            for h in range(self.number_of_hours):
+                for c in range(self.number_of_classes):
+                    sum(self.K[:, d, h, c]) <= 1
     
     def create_material_coverage__constraints(self):
         """Contraints of the type:
@@ -64,11 +65,11 @@ class Timetable:
         """
         # A proffessor i can only teach x hours per week for class l according to the input data
         for i in range(self.number_of_profs):
-            for l in range(self.number_of_classes):
+            for c in range(self.number_of_classes):
 
-                # sum(self.K[i, :, :, l]) == inp.required_hours_per_professor_per_class[i][l]
-                all_hours_in_week = [self.K[i][j][k][l] for j in range(self.number_of_days) for k in range(self.number_of_hours)]
-                sum(all_hours_in_week) == inp.required_hours_per_professor_per_class[i][l]
+
+                all_hours_in_week = [self.K[i][d][h][c] for d in range(self.number_of_days) for h in range(self.number_of_hours)]
+                sum(all_hours_in_week) == inp.required_hours_per_professor_per_class[i][c]
                 # sum(all_hours_in_week) <= inp.required_hours_per_professor_per_class[i][l] # Use if you want to get uncompleted timetables as result
 
     def create_max_hours_per_day_constraints(self):
@@ -77,9 +78,9 @@ class Timetable:
         Are added here        
         """
         for i in range(self.number_of_profs):
-            for j in range(self.number_of_days):
-                for l in range(self.number_of_classes):
-                    sum(self.K[i, j, :, l]) <= inp.max_hours_per_professor_per_class_per_day[i][l]
+            for d in range(self.number_of_days):
+                for c in range(self.number_of_classes):
+                    sum(self.K[i, d, :, c]) <= inp.max_hours_per_professor_per_class_per_day[i][c]
 
     def create_unavailable_hours_constraints(self):
         """Contraints of the type:
@@ -87,11 +88,11 @@ class Timetable:
         Are added here        
         """
         for i in range(self.number_of_profs):
-            for j in range(self.number_of_days):
-                for k in range(self.number_of_hours):
-                    for l in range(self.number_of_classes):
-                        if (j, k) in inp.unavailable_hours_per_professor[i]:
-                            self.K[i][j][k][l] == 0
+            for d in range(self.number_of_days):
+                for h in range(self.number_of_hours):
+                    for c in range(self.number_of_classes):
+                        if (d, h) in inp.unavailable_hours_per_professor[i]:
+                            self.K[i][d][h][c] == 0
 
 
     def set_objective(self):
@@ -100,8 +101,11 @@ class Timetable:
         
         params = {
             "coverage": 0,
-            "preferences": 1,
-            "avoidance": 0.5
+            "preferred_days": 1,
+            "avoidance_days": 0.5,
+            "preferred_hours": 1,
+            "avoidance_hours": 0.5,
+            
         }
 
         # Maximize the number of classes taught
@@ -109,25 +113,47 @@ class Timetable:
 
 
         # Add preferences like some professors prefer to teach at certain days
-        preferences_terms = []
+        preferences_days_terms = []
         for i in range(self.number_of_profs):
             ind = i%5
             terms = [self.K[i][ind][k][l]  for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
-            preferences_terms+=terms
+            preferences_days_terms+=terms
             print(f"Professor {i} prefers to teach on day {ind}")
         
         # Add terms signifying that a professor wishes to avoid teaching at a certain day
-        avoidance_terms = []
+        avoidance_days_terms = []
         for i in range(self.number_of_profs):
             ind = (i+1)%5
             terms = [self.K[i][ind][k][l]  for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
-            avoidance_terms+=terms
+            avoidance_days_terms+=terms
             print(f"Professor {i} avoids teaching on day {ind}")
+        
+        # Add terms signifying that a professor prefers to teach at a certain hour
+        preferences_hours_terms = []
+        for i in range(self.number_of_profs):
+            for j in range(self.number_of_days):
+                ind = i%5
+                terms = [self.K[i][j][ind][l]  for l in range(self.number_of_classes)]
+                preferences_hours_terms+=terms
+            print(f"Professor {i} prefers to teach on hour {ind}")
+        
+        # Add terms signifying that a professor wishes to avoid teaching at a certain hour
+        avoidance_hours_terms = []
+        for i in range(self.number_of_profs):
+            for j in range(self.number_of_days):
+                ind = (i+1)%5
+                terms = [self.K[i][j][ind][l]  for l in range(self.number_of_classes)]
+                avoidance_hours_terms+=terms
+            print(f"Professor {i} avoids teaching on hour {ind}")
+        
+        
             
 
         objective_sum = params["coverage"]*sum(coverage_terms)
-        objective_sum += params["preferences"]*sum(preferences_terms)
-        objective_sum -= params["avoidance"]*sum(avoidance_terms)
+        objective_sum += params["preferred_days"]*sum(preferences_days_terms)
+        objective_sum -= params["avoidance_days"]*sum(avoidance_days_terms)
+        objective_sum += params["preferred_hours"]*sum(preferences_hours_terms)
+        objective_sum -= params["avoidance_hours"]*sum(avoidance_hours_terms)
 
         self.model.maximize(objective_sum)
         
@@ -184,8 +210,33 @@ class Timetable:
                         counter+=1
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
             print(f"Professor {i} teaches {counter} classes on day {avoided_day}. Total hours: {total_hours}")
+        
+        print("[[[[[[]]]]]]")
+
+        for i in range(self.number_of_profs):
+            preffered_hour = i%5
+            counter=0
+            for j in range(self.number_of_days):
+                for l in range(self.number_of_classes):
+                    if self.K[i][j][preffered_hour][l].primal == 1:
+                        counter+=1
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            print(f"Professor {i} teaches {counter} classes on hour {preffered_hour}. Total hours: {total_hours}")
+        print("////////")
+
+        for i in range(self.number_of_profs):
+            avoided_hour = (i+1)%5
+            counter=0
+            for j in range(self.number_of_days):
+                for l in range(self.number_of_classes):
+                    if self.K[i][j][avoided_hour][l].primal == 1:
+                        counter+=1
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            print(f"Professor {i} teaches {counter} classes on hour {avoided_hour}. Total hours: {total_hours}")
 
 
 if __name__ == '__main__':
     
     timetable = Timetable(inp.number_of_professors, inp.number_of_days, len(inp.number_of_hours_per_day), inp.number_of_classes)
+    timetable.print_classes()
+    timetable.print_stats()
