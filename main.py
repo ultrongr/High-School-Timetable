@@ -102,7 +102,7 @@ class Timetable:
         
         
         params = {
-            "coverage": 0,
+            "coverage": 100,
             "preferred_days": 1,
             "avoidance_days": 0.5,
             "preferred_hours": 1,
@@ -111,14 +111,14 @@ class Timetable:
         }
 
         # Maximize the number of classes taught
-        coverage_terms = [self.K[i][j][k][l] for i in range(self.number_of_profs) for j in range(self.number_of_days) for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
+        coverage_terms = [self.K[i][d][h][c] for i in range(self.number_of_profs) for d in range(self.number_of_days) for h in range(self.number_of_hours) for c in range(self.number_of_classes)]
 
 
         # Add preferences like some professors prefer to teach at certain days
         preferences_days_terms = []
         for i in range(self.number_of_profs):
             ind = i%5
-            terms = [self.K[i][ind][k][l]  for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
+            terms = [self.K[i][ind][h][c]  for h in range(self.number_of_hours) for c in range(self.number_of_classes)]
             preferences_days_terms+=terms
             print(f"Professor {i} prefers to teach on day {ind}")
         
