@@ -90,9 +90,11 @@ class Timetable:
         for i in range(self.number_of_profs):
             for d in range(self.number_of_days):
                 for h in range(self.number_of_hours):
-                    for c in range(self.number_of_classes):
-                        if (d, h) in inp.unavailable_hours_per_professor[i]:
-                            self.K[i][d][h][c] == 0
+                    # for c in range(self.number_of_classes):
+                    #     if (d, h) in inp.unavailable_hours_per_professor[i]:
+                    #         self.K[i][d][h][c] == 0
+                    if (d, h) in inp.unavailable_hours_per_professor[i]:   
+                        sum(self.K[i][d][h]) ==0
 
 
     def set_objective(self):
