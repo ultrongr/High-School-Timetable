@@ -100,34 +100,34 @@ class Timetable:
         
         params = {
             "coverage": 0,
-            "fewer_days": 10,
-            "no_gaps": 1,
-            "preferences": 1
+            "preferences": 1,
+            "avoidance": 0.5
         }
 
         # Maximize the number of classes taught
         coverage_terms = [self.K[i][j][k][l] for i in range(self.number_of_profs) for j in range(self.number_of_days) for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
 
-        # Minimize the number of days a professor teaches
-        fewer_days_terms = []
 
-
-        # Minimize the number of gaps for each proffessor in every day
-        fewer_gaps_terms = []
-
-        # Add preferences like some proffessors prefer to teach at certain days
+        # Add preferences like some professors prefer to teach at certain days
         preferences_terms = []
         for i in range(self.number_of_profs):
             ind = i%5
             terms = [self.K[i][ind][k][l]  for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
             preferences_terms+=terms
             print(f"Professor {i} prefers to teach on day {ind}")
+        
+        # Add terms signifying that a professor wishes to avoid teaching at a certain day
+        avoidance_terms = []
+        for i in range(self.number_of_profs):
+            ind = (i+1)%5
+            terms = [self.K[i][ind][k][l]  for k in range(self.number_of_hours) for l in range(self.number_of_classes)]
+            avoidance_terms+=terms
+            print(f"Professor {i} avoids teaching on day {ind}")
             
 
         objective_sum = params["coverage"]*sum(coverage_terms)
-        objective_sum-= params["fewer_days"]*sum(fewer_days_terms)
-        objective_sum+= params["no_gaps"]*sum(fewer_gaps_terms)
-        objective_sum+= params["preferences"]*sum(preferences_terms)
+        objective_sum += params["preferences"]*sum(preferences_terms)
+        objective_sum -= params["avoidance"]*sum(avoidance_terms)
 
         self.model.maximize(objective_sum)
         
@@ -164,18 +164,26 @@ class Timetable:
         
         for i in range(self.number_of_profs):
             preffered_day = i%5
+            
 
-            for j in range(self.number_of_days):
-                if j != preffered_day:
-                    continue
-                counter=0
-                for k in range(self.number_of_hours):
-                    for l in range(self.number_of_classes):
-                        if self.K[i][j][k][l].primal == 1:
-                            counter+=1
-                total_hours= sum(inp.required_hours_per_professor_per_class[i])
-                print(f"Professor {i} teaches {counter} classes on day {j}. Total hours: {total_hours}")
 
+            counter=0
+            for k in range(self.number_of_hours):
+                for l in range(self.number_of_classes):
+                    if self.K[i][preffered_day][k][l].primal == 1:
+                        counter+=1
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            print(f"Professor {i} teaches {counter} classes on day {preffered_day}. Total hours: {total_hours}")
+        print("////////")
+        for i in range(self.number_of_profs):
+            avoided_day = (i+1)%5
+            counter=0
+            for k in range(self.number_of_hours):
+                for l in range(self.number_of_classes):
+                    if self.K[i][avoided_day][k][l].primal == 1:
+                        counter+=1
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            print(f"Professor {i} teaches {counter} classes on day {avoided_day}. Total hours: {total_hours}")
 
 
 if __name__ == '__main__':
