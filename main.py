@@ -246,15 +246,12 @@ class Timetable:
             return
         
         import matplotlib.pyplot as plt
+        from matplotlib.ticker import MaxNLocator
 
         fig, axs = plt.subplots(2, 2, figsize=(10, 8))
         fig.suptitle('Stats')
 
         plt.subplots_adjust(hspace=0.4, wspace=0.4)
-
-
-
-
 
         # Plot the number of classes taught by each professor on preferred days
         preferred_days_stats = []
@@ -271,6 +268,8 @@ class Timetable:
         axs[0, 0].set_title('Number of Classes Taught on Preferred Days')
         axs[0, 0].set_xlabel('Professor')
         axs[0, 0].set_ylabel('Number of Classes')
+        axs[0, 0].xaxis.set_major_locator(MaxNLocator(integer=True))
+        axs[0, 0].yaxis.set_major_locator(MaxNLocator(integer=True))
 
         # Plot the number of classes taught by each professor on avoided days
         avoided_days_stats = []
@@ -287,6 +286,8 @@ class Timetable:
         axs[0, 1].set_title('Number of Classes Taught on Avoided Days')
         axs[0, 1].set_xlabel('Professor')
         axs[0, 1].set_ylabel('Number of Classes')
+        axs[0, 1].xaxis.set_major_locator(MaxNLocator(integer=True))
+        axs[0, 1].yaxis.set_major_locator(MaxNLocator(integer=True))
 
         # Plot the number of classes taught by each professor on preferred hours
         preferred_hours_stats = []
@@ -303,6 +304,8 @@ class Timetable:
         axs[1, 0].set_title('Number of Classes Taught on Preferred Hours')
         axs[1, 0].set_xlabel('Professor')
         axs[1, 0].set_ylabel('Number of Classes')
+        axs[1, 0].xaxis.set_major_locator(MaxNLocator(integer=True))
+        axs[1, 0].yaxis.set_major_locator(MaxNLocator(integer=True))
 
         # Plot the number of classes taught by each professor on avoided hours
         avoided_hours_stats = []
@@ -319,9 +322,8 @@ class Timetable:
         axs[1, 1].set_title('Number of Classes Taught on Avoided Hours')
         axs[1, 1].set_xlabel('Professor')
         axs[1, 1].set_ylabel('Number of Classes')
-        
-
-
+        axs[1, 1].xaxis.set_major_locator(MaxNLocator(integer=True))
+        axs[1, 1].yaxis.set_major_locator(MaxNLocator(integer=True))
 
         plt.show()
 
