@@ -62,7 +62,7 @@ for professor_id in range(number_of_professors):
     #     preferred_days_per_professor[professor_id].append(day)
     ind1=professor_id%5
     ind2 = np.random.randint(0, number_of_days)
-    while ind2==ind1:
+    while ind2==ind1 or ind2==(professor_id+1)%5:
         ind2 = np.random.randint(0, number_of_days)
     preferred_days_per_professor[professor_id] = [ind1, ind2]
 
@@ -75,7 +75,7 @@ for professor_id in range(number_of_professors):
     pref_1, pref_2 = preferred_days_per_professor[professor_id]
     ind1=(professor_id+1)%5
     ind2 = np.random.randint(0, number_of_days)
-    while ind2 not in [pref_1, pref_2, ind1]:
+    while ind2 in [pref_1, pref_2, ind1]:
         ind2 = np.random.randint(0, number_of_days)
     days_to_avoid_per_professor[professor_id] = [ind1, ind2]
 
@@ -87,7 +87,7 @@ for professor_id in range(number_of_professors):
     #     preferred_hours_per_professor[professor_id].append(hour)
     ind1=professor_id%5
     ind2 = np.random.randint(0, number_of_hours)
-    while ind2==ind1:
+    while ind2==ind1 or ind2==(professor_id+1)%5:
         ind2 = np.random.randint(0, number_of_hours)
     preferred_hours_per_professor[professor_id] = [ind1, ind2]
 
@@ -100,7 +100,7 @@ for professor_id in range(number_of_professors):
     pref_1, pref_2 = preferred_hours_per_professor[professor_id]
     ind1=(professor_id+1)%5
     ind2 = np.random.randint(0, number_of_hours)
-    while ind2 not in [pref_1, pref_2, ind1]:
+    while ind2 in [pref_1, pref_2, ind1]:
         ind2 = np.random.randint(0, number_of_hours)
     hours_to_avoid_per_professor[professor_id] = [ind1, ind2]
 

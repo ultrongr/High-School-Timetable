@@ -256,74 +256,88 @@ class Timetable:
         # Plot the number of classes taught by each professor on preferred days
         preferred_days_stats = []
         for i in range(self.number_of_profs):
-            preferred_day = i % 5
-            counter = 0
-            for k in range(self.number_of_hours):
-                for l in range(self.number_of_classes):
-                    if self.K[i][preferred_day][k][l].primal == 1:
-                        counter += 1
-            preferred_days_stats.append(counter)
+            preferred_days = inp.preferred_days_per_professor[i]
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            counter=0
+            for preferred_day in preferred_days:
+                for h in range(self.number_of_hours):
+                    for c in range(self.number_of_classes):
+                        if self.K[i][preferred_day][h][c].primal == 1:
+                            counter+=1
+
+            preferred_days_stats.append(counter/total_hours if total_hours!=0 else 0)
 
         axs[0, 0].bar(range(self.number_of_profs), preferred_days_stats)
-        axs[0, 0].set_title('Number of Classes Taught on Preferred Days')
-        axs[0, 0].set_xlabel('Professor')
-        axs[0, 0].set_ylabel('Number of Classes')
+        axs[0, 0].set_title('Percentage of Hours Taught on Preferred Days')
+        axs[0, 0].set_xlabel('Professor id')
+        axs[0, 0].set_ylabel('Percentage of weekly hours')
         axs[0, 0].xaxis.set_major_locator(MaxNLocator(integer=True))
-        axs[0, 0].yaxis.set_major_locator(MaxNLocator(integer=True))
+        # axs[0, 0].yaxis.set_major_locator(MaxNLocator(integer=True))
 
         # Plot the number of classes taught by each professor on avoided days
         avoided_days_stats = []
         for i in range(self.number_of_profs):
-            avoided_day = (i + 1) % 5
-            counter = 0
-            for k in range(self.number_of_hours):
-                for l in range(self.number_of_classes):
-                    if self.K[i][avoided_day][k][l].primal == 1:
-                        counter += 1
-            avoided_days_stats.append(counter)
+            avoided_days = inp.days_to_avoid_per_professor[i]
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            counter=0
+            for avoided_day in avoided_days:
+                for h in range(self.number_of_hours):
+                    for c in range(self.number_of_classes):
+                        if self.K[i][avoided_day][h][c].primal == 1:
+                            counter+=1
+            avoided_days_stats.append(counter/total_hours if total_hours!=0 else 0)
 
         axs[0, 1].bar(range(self.number_of_profs), avoided_days_stats)
-        axs[0, 1].set_title('Number of Classes Taught on Avoided Days')
-        axs[0, 1].set_xlabel('Professor')
-        axs[0, 1].set_ylabel('Number of Classes')
+        axs[0, 1].set_title('Percentage of Hours Taught on Avoided Days')
+        axs[0, 1].set_xlabel('Professor id')
+        axs[0, 1].set_ylabel('Percentage of weekly hours')
         axs[0, 1].xaxis.set_major_locator(MaxNLocator(integer=True))
-        axs[0, 1].yaxis.set_major_locator(MaxNLocator(integer=True))
+        # axs[0, 1].yaxis.set_major_locator(MaxNLocator(integer=True))
+
 
         # Plot the number of classes taught by each professor on preferred hours
         preferred_hours_stats = []
         for i in range(self.number_of_profs):
-            preferred_hour = i % 5
-            counter = 0
-            for j in range(self.number_of_days):
-                for l in range(self.number_of_classes):
-                    if self.K[i][j][preferred_hour][l].primal == 1:
-                        counter += 1
-            preferred_hours_stats.append(counter)
+            preferred_hours = inp.preferred_hours_per_professor[i]
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            counter=0
+            for preferred_hour in preferred_hours:
+                for j in range(self.number_of_days):
+                    for c in range(self.number_of_classes):
+                        if self.K[i][j][preferred_hour][c].primal == 1:
+                            counter+=1
+            preferred_hours_stats.append(counter/total_hours if total_hours!=0 else 0)
 
         axs[1, 0].bar(range(self.number_of_profs), preferred_hours_stats)
-        axs[1, 0].set_title('Number of Classes Taught on Preferred Hours')
-        axs[1, 0].set_xlabel('Professor')
-        axs[1, 0].set_ylabel('Number of Classes')
+        axs[1, 0].set_title('Percentage of Hours Taught on Preferred Hours')
+        axs[1, 0].set_xlabel('Professor id')
+        axs[1, 0].set_ylabel('Percentage of weekly hours')
         axs[1, 0].xaxis.set_major_locator(MaxNLocator(integer=True))
-        axs[1, 0].yaxis.set_major_locator(MaxNLocator(integer=True))
+        # axs[1, 0].yaxis.set_major_locator(MaxNLocator(integer=True))
 
         # Plot the number of classes taught by each professor on avoided hours
         avoided_hours_stats = []
         for i in range(self.number_of_profs):
-            avoided_hour = (i + 1) % 5
-            counter = 0
-            for j in range(self.number_of_days):
-                for l in range(self.number_of_classes):
-                    if self.K[i][j][avoided_hour][l].primal == 1:
-                        counter += 1
-            avoided_hours_stats.append(counter)
+            avoided_hours = inp.hours_to_avoid_per_professor[i]
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            counter=0
+            for avoided_hour in avoided_hours:
+                for j in range(self.number_of_days):
+                    for c in range(self.number_of_classes):
+                        if self.K[i][j][avoided_hour][c].primal == 1:
+                            counter+=1
+            avoided_hours_stats.append(counter/total_hours if total_hours!=0 else 0)
 
         axs[1, 1].bar(range(self.number_of_profs), avoided_hours_stats)
-        axs[1, 1].set_title('Number of Classes Taught on Avoided Hours')
-        axs[1, 1].set_xlabel('Professor')
-        axs[1, 1].set_ylabel('Number of Classes')
+        axs[1, 1].set_title('Percentage of Hours Taught on Avoided Hours')
+        axs[1, 1].set_xlabel('Professor id')
+        axs[1, 1].set_ylabel('Percentage of weekly hours')
         axs[1, 1].xaxis.set_major_locator(MaxNLocator(integer=True))
-        axs[1, 1].yaxis.set_major_locator(MaxNLocator(integer=True))
+        # axs[1, 1].yaxis.set_major_locator(MaxNLocator(integer=True))
+        
+
+
+
 
         plt.show()
 
