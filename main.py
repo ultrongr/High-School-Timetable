@@ -114,6 +114,10 @@ class Timetable:
         # Maximize the number of classes taught
         coverage_terms = [self.K[i][d][h][c] for i in range(self.number_of_profs) for d in range(self.number_of_days) for h in range(self.number_of_hours) for c in range(self.number_of_classes)]
 
+        # If we want to give a higher priority to certain professors we can add a weight to the choices of those proffessors:
+        extra_priority =[1 for _ in range(self.number_of_profs)]
+        # extra_priority[0] = 0
+        extra_priority[0] = 2
 
         # Add preferences like some professors prefer to teach at certain days
         preferences_days_terms = []
@@ -121,7 +125,7 @@ class Timetable:
             for d in inp.preferred_days_per_professor[i]:
                 for h in range(self.number_of_hours):
                     for c in range(self.number_of_classes):
-                        preferences_days_terms.append(self.K[i][d][h][c])
+                        preferences_days_terms.append(extra_priority[i]*self.K[i][d][h][c])
             
         
         # Add preferences like some professors prefer not to teach at certain days
@@ -130,7 +134,7 @@ class Timetable:
             for d in inp.days_to_avoid_per_professor[i]:
                 for h in range(self.number_of_hours):
                     for c in range(self.number_of_classes):
-                        avoidance_days_terms.append(self.K[i][d][h][c])
+                        avoidance_days_terms.append(extra_priority[i]*self.K[i][d][h][c])
         
         # Add preferences like some professors prefer to teach at certain hours
         preferences_hours_terms = []
@@ -138,7 +142,7 @@ class Timetable:
             for d in range(self.number_of_days):
                 for h in inp.preferred_hours_per_professor[i]:
                     for c in range(self.number_of_classes):
-                        preferences_hours_terms.append(self.K[i][d][h][c])
+                        preferences_hours_terms.append(extra_priority[i]*self.K[i][d][h][c])
         
         # Add preferences like some professors prefer not to teach at certain hours
         avoidance_hours_terms = []
@@ -146,7 +150,7 @@ class Timetable:
             for d in range(self.number_of_days):
                 for h in inp.hours_to_avoid_per_professor[i]:
                     for c in range(self.number_of_classes):
-                        avoidance_hours_terms.append(self.K[i][d][h][c])
+                        avoidance_hours_terms.append(extra_priority[i]*self.K[i][d][h][c])
         
 
 
@@ -169,6 +173,7 @@ class Timetable:
             print("Model has not been solved yet")
             return
         class_names = ["Class A", "Class B", "Class C"]
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
         for c in range(self.number_of_classes):
             out=f"{class_names[c]}:\n\n"
             time_slots = [[-1 for _ in range(self.number_of_hours)] for _ in range(self.number_of_days)]
@@ -193,52 +198,77 @@ class Timetable:
         if not self.solved:
             print("Model has not been solved yet")
             return
+        print("\n//////////////////////////////////////\n")
+        print("Printing statistics\n")
+
+
+        print("Preferred Days")
+        counter_preferred_days=0
+        for i in range(self.number_of_profs):
+            preffered_days = inp.preferred_days_per_professor[i]
+
+            counter=0
+            for preferred_day in preffered_days:
+                for h in range(self.number_of_hours):
+                    for c in range(self.number_of_classes):
+                        if self.K[i][preferred_day][h][c].primal == 1:
+                            counter+=1
+            counter_preferred_days+=counter
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            print(f"Professor {i} teaches {counter} classes on their preferred days. Total hours: {total_hours}")
+        print("\n////////\n")
+        print("Avoided Days")
+        counter_avoided_days=0
+        for i in range(self.number_of_profs):
+            avoided_days = inp.days_to_avoid_per_professor[i]
+
+            counter=0
+            for avoided_day in avoided_days:
+                for h in range(self.number_of_hours):
+                    for c in range(self.number_of_classes):
+                        if self.K[i][avoided_day][h][c].primal == 1:
+                            counter+=1
+            counter_avoided_days+=counter
+            total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            print(f"Professor {i} teaches {counter} classes on their avoided days. Total hours: {total_hours}")
         
+        print("\n////////\n")
+        print("Preferred Hours")
+        counter_preferred_hours=0
         for i in range(self.number_of_profs):
-            preffered_day = i%5
-            
-
+            preferred_hours = inp.preferred_hours_per_professor[i]
 
             counter=0
-            for k in range(self.number_of_hours):
-                for l in range(self.number_of_classes):
-                    if self.K[i][preffered_day][k][l].primal == 1:
-                        counter+=1
+            for preferred_hour in preferred_hours:
+                for d in range(self.number_of_days):
+                    for c in range(self.number_of_classes):
+                        if self.K[i][d][preferred_hour][c].primal == 1:
+                            counter+=1
+            counter_preferred_hours+=counter
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
-            print(f"Professor {i} teaches {counter} classes on day {preffered_day}. Total hours: {total_hours}")
-        print("////////")
+            print(f"Professor {i} teaches {counter} classes on their preferred hours. Total hours: {total_hours}")
+
+        print("\n////////\n")
+        print("Avoided Hours")
+        counter_avoided_hours = 0
         for i in range(self.number_of_profs):
-            avoided_day = (i+1)%5
+            avoided_hours = inp.hours_to_avoid_per_professor[i]
+
             counter=0
-            for k in range(self.number_of_hours):
-                for l in range(self.number_of_classes):
-                    if self.K[i][avoided_day][k][l].primal == 1:
-                        counter+=1
+            for avoided_hour in avoided_hours:
+                for d in range(self.number_of_days):
+                    for c in range(self.number_of_classes):
+                        if self.K[i][d][avoided_hour][c].primal == 1:
+                            counter+=1
+            counter_avoided_hours += counter
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
-            print(f"Professor {i} teaches {counter} classes on day {avoided_day}. Total hours: {total_hours}")
+            print(f"Professor {i} teaches {counter} classes on their avoided hours. Total hours: {total_hours}")
         
-        print("[[[[[[]]]]]]")
-
-        for i in range(self.number_of_profs):
-            preffered_hour = i%5
-            counter=0
-            for j in range(self.number_of_days):
-                for l in range(self.number_of_classes):
-                    if self.K[i][j][preffered_hour][l].primal == 1:
-                        counter+=1
-            total_hours= sum(inp.required_hours_per_professor_per_class[i])
-            print(f"Professor {i} teaches {counter} classes on hour {preffered_hour}. Total hours: {total_hours}")
-        print("////////")
-
-        for i in range(self.number_of_profs):
-            avoided_hour = (i+1)%5
-            counter=0
-            for j in range(self.number_of_days):
-                for l in range(self.number_of_classes):
-                    if self.K[i][j][avoided_hour][l].primal == 1:
-                        counter+=1
-            total_hours= sum(inp.required_hours_per_professor_per_class[i])
-            print(f"Professor {i} teaches {counter} classes on hour {avoided_hour}. Total hours: {total_hours}")
+        print("\n////////\n")
+        print(f"Number of hours taught in avoided days: {counter_avoided_days}")
+        print(f"Number of hours taught in preferred days: {counter_preferred_days}")
+        print(f"Number of hours taught in avoided hours: {counter_avoided_hours}")
+        print(f"Number of hours taught in preferred hours: {counter_preferred_hours}")
 
     def show_stats(self):
         if not self.solved:
@@ -339,6 +369,7 @@ class Timetable:
 
 
 
+
         plt.show()
 
 
@@ -346,6 +377,6 @@ if __name__ == '__main__':
     
     timetable = Timetable(inp.number_of_professors, inp.number_of_days, inp.number_of_hours, inp.number_of_classes)
     timetable.solve()
-    timetable.print_classes()
     timetable.print_stats()
+    timetable.print_classes()
     timetable.show_stats()
