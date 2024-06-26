@@ -1,7 +1,8 @@
 import numpy as np 
 import pymprog
-# import input_data as inp
-import input_data_non_complete as inp
+
+import input_data as inp
+# import input_data_non_complete as inp
 
 
 class Timetable:
@@ -239,6 +240,91 @@ class Timetable:
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
             print(f"Professor {i} teaches {counter} classes on hour {avoided_hour}. Total hours: {total_hours}")
 
+    def show_stats(self):
+        if not self.solved:
+            print("Model has not been solved yet")
+            return
+        
+        import matplotlib.pyplot as plt
+
+        fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+        fig.suptitle('Stats')
+
+        plt.subplots_adjust(hspace=0.4, wspace=0.4)
+
+
+
+
+
+        # Plot the number of classes taught by each professor on preferred days
+        preferred_days_stats = []
+        for i in range(self.number_of_profs):
+            preferred_day = i % 5
+            counter = 0
+            for k in range(self.number_of_hours):
+                for l in range(self.number_of_classes):
+                    if self.K[i][preferred_day][k][l].primal == 1:
+                        counter += 1
+            preferred_days_stats.append(counter)
+
+        axs[0, 0].bar(range(self.number_of_profs), preferred_days_stats)
+        axs[0, 0].set_title('Number of Classes Taught on Preferred Days')
+        axs[0, 0].set_xlabel('Professor')
+        axs[0, 0].set_ylabel('Number of Classes')
+
+        # Plot the number of classes taught by each professor on avoided days
+        avoided_days_stats = []
+        for i in range(self.number_of_profs):
+            avoided_day = (i + 1) % 5
+            counter = 0
+            for k in range(self.number_of_hours):
+                for l in range(self.number_of_classes):
+                    if self.K[i][avoided_day][k][l].primal == 1:
+                        counter += 1
+            avoided_days_stats.append(counter)
+
+        axs[0, 1].bar(range(self.number_of_profs), avoided_days_stats)
+        axs[0, 1].set_title('Number of Classes Taught on Avoided Days')
+        axs[0, 1].set_xlabel('Professor')
+        axs[0, 1].set_ylabel('Number of Classes')
+
+        # Plot the number of classes taught by each professor on preferred hours
+        preferred_hours_stats = []
+        for i in range(self.number_of_profs):
+            preferred_hour = i % 5
+            counter = 0
+            for j in range(self.number_of_days):
+                for l in range(self.number_of_classes):
+                    if self.K[i][j][preferred_hour][l].primal == 1:
+                        counter += 1
+            preferred_hours_stats.append(counter)
+
+        axs[1, 0].bar(range(self.number_of_profs), preferred_hours_stats)
+        axs[1, 0].set_title('Number of Classes Taught on Preferred Hours')
+        axs[1, 0].set_xlabel('Professor')
+        axs[1, 0].set_ylabel('Number of Classes')
+
+        # Plot the number of classes taught by each professor on avoided hours
+        avoided_hours_stats = []
+        for i in range(self.number_of_profs):
+            avoided_hour = (i + 1) % 5
+            counter = 0
+            for j in range(self.number_of_days):
+                for l in range(self.number_of_classes):
+                    if self.K[i][j][avoided_hour][l].primal == 1:
+                        counter += 1
+            avoided_hours_stats.append(counter)
+
+        axs[1, 1].bar(range(self.number_of_profs), avoided_hours_stats)
+        axs[1, 1].set_title('Number of Classes Taught on Avoided Hours')
+        axs[1, 1].set_xlabel('Professor')
+        axs[1, 1].set_ylabel('Number of Classes')
+        
+
+
+
+        plt.show()
+
 
 if __name__ == '__main__':
     
@@ -246,3 +332,4 @@ if __name__ == '__main__':
     timetable.solve()
     timetable.print_classes()
     timetable.print_stats()
+    timetable.show_stats()
