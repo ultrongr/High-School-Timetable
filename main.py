@@ -117,6 +117,7 @@ class Timetable:
         # If we want to give a higher priority to certain professors we can add a weight to the choices of those proffessors:
         extra_priority =[1 for _ in range(self.number_of_profs)]
         # extra_priority[0] = 0
+        # extra_priority[0] = 1
         extra_priority[0] = 2
 
         # Add preferences like some professors prefer to teach at certain days
@@ -215,6 +216,8 @@ class Timetable:
                             counter+=1
             counter_preferred_days+=counter
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            if total_hours==0:
+                continue
             print(f"Professor {i} teaches {counter} classes on their preferred days. Total hours: {total_hours}")
         print("\n////////\n")
         print("Avoided Days")
@@ -230,6 +233,8 @@ class Timetable:
                             counter+=1
             counter_avoided_days+=counter
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            if total_hours==0:
+                continue
             print(f"Professor {i} teaches {counter} classes on their avoided days. Total hours: {total_hours}")
         
         print("\n////////\n")
@@ -246,6 +251,8 @@ class Timetable:
                             counter+=1
             counter_preferred_hours+=counter
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            if total_hours==0:
+                continue
             print(f"Professor {i} teaches {counter} classes on their preferred hours. Total hours: {total_hours}")
 
         print("\n////////\n")
@@ -262,6 +269,8 @@ class Timetable:
                             counter+=1
             counter_avoided_hours += counter
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            if total_hours==0:
+                continue
             print(f"Professor {i} teaches {counter} classes on their avoided hours. Total hours: {total_hours}")
         
         print("\n////////\n")
@@ -288,6 +297,8 @@ class Timetable:
         for i in range(self.number_of_profs):
             preferred_days = inp.preferred_days_per_professor[i]
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            if total_hours==0:
+                continue
             counter=0
             for preferred_day in preferred_days:
                 for h in range(self.number_of_hours):
@@ -309,6 +320,8 @@ class Timetable:
         for i in range(self.number_of_profs):
             avoided_days = inp.days_to_avoid_per_professor[i]
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            if total_hours==0:
+                continue
             counter=0
             for avoided_day in avoided_days:
                 for h in range(self.number_of_hours):
@@ -330,6 +343,8 @@ class Timetable:
         for i in range(self.number_of_profs):
             preferred_hours = inp.preferred_hours_per_professor[i]
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            if total_hours==0:
+                continue
             counter=0
             for preferred_hour in preferred_hours:
                 for j in range(self.number_of_days):
@@ -350,6 +365,8 @@ class Timetable:
         for i in range(self.number_of_profs):
             avoided_hours = inp.hours_to_avoid_per_professor[i]
             total_hours= sum(inp.required_hours_per_professor_per_class[i])
+            if total_hours==0:
+                continue
             counter=0
             for avoided_hour in avoided_hours:
                 for j in range(self.number_of_days):
