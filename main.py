@@ -308,7 +308,7 @@ class Timetable:
 
             preferred_days_stats.append(counter/total_hours if total_hours!=0 else 0)
 
-        axs[0, 0].bar(range(self.number_of_profs), preferred_days_stats)
+        axs[0, 0].bar(range(len(preferred_days_stats)), preferred_days_stats)
         axs[0, 0].set_title('Percentage of Hours Taught on Preferred Days')
         axs[0, 0].set_xlabel('Professor id')
         axs[0, 0].set_ylabel('Percentage of weekly hours')
@@ -330,7 +330,7 @@ class Timetable:
                             counter+=1
             avoided_days_stats.append(counter/total_hours if total_hours!=0 else 0)
 
-        axs[0, 1].bar(range(self.number_of_profs), avoided_days_stats)
+        axs[0, 1].bar(range(len(avoided_days_stats)), avoided_days_stats)
         axs[0, 1].set_title('Percentage of Hours Taught on Avoided Days')
         axs[0, 1].set_xlabel('Professor id')
         axs[0, 1].set_ylabel('Percentage of weekly hours')
@@ -353,7 +353,7 @@ class Timetable:
                             counter+=1
             preferred_hours_stats.append(counter/total_hours if total_hours!=0 else 0)
 
-        axs[1, 0].bar(range(self.number_of_profs), preferred_hours_stats)
+        axs[1, 0].bar(range(len(preferred_hours_stats)), avoided_days_stats)
         axs[1, 0].set_title('Percentage of Hours Taught on Preferred Hours')
         axs[1, 0].set_xlabel('Professor id')
         axs[1, 0].set_ylabel('Percentage of weekly hours')
@@ -375,7 +375,7 @@ class Timetable:
                             counter+=1
             avoided_hours_stats.append(counter/total_hours if total_hours!=0 else 0)
 
-        axs[1, 1].bar(range(self.number_of_profs), avoided_hours_stats)
+        axs[1, 1].bar(range(len(avoided_hours_stats)), avoided_days_stats)
         axs[1, 1].set_title('Percentage of Hours Taught on Avoided Hours')
         axs[1, 1].set_xlabel('Professor id')
         axs[1, 1].set_ylabel('Percentage of weekly hours')
