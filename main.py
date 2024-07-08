@@ -70,7 +70,7 @@ class Timetable:
 
 
                 all_hours_in_week = [self.K[i][d][h][c] for d in range(self.number_of_days) for h in range(self.number_of_hours)]
-                # sum(all_hours_in_week) == inp.required_hours_per_professor_per_class[i][c]
+                # sum(all_hours_in_week) == inp.required_hours_per_professor_per_class[i][c] # Use to force the timetable to be complete
                 sum(all_hours_in_week) <= inp.required_hours_per_professor_per_class[i][c] # Use if you want to get uncompleted timetables as result
 
     def create_max_hours_per_day_constraints(self):
@@ -91,9 +91,6 @@ class Timetable:
         for i in range(self.number_of_profs):
             for d in range(self.number_of_days):
                 for h in range(self.number_of_hours):
-                    # for c in range(self.number_of_classes):
-                    #     if (d, h) in inp.unavailable_hours_per_professor[i]:
-                    #         self.K[i][d][h][c] == 0
                     if (d, h) in inp.unavailable_hours_per_professor[i]:   
                         sum(self.K[i][d][h]) ==0
 
@@ -216,7 +213,7 @@ class Timetable:
         first_line = "P\\D\t|\t"
         for i in range(self.number_of_days):
             first_line += f"{inp.days_initials[i]}\t|\t"
-        
+        first_line += "Preferred/Avoided hours"
         out =  "\n"
         for i in range(self.number_of_profs):
             out+=f"Prof {i}\t"
@@ -241,11 +238,12 @@ class Timetable:
                 if colors:
                     out+=RESET
                 # out+="|\t"
-            preferred_hours = inp.preferred_hours_per_professor[i]
-            avoided_hours = inp.hours_to_avoid_per_professor[i]
-            preferred_hours_print = ",".join([str(x) for x in preferred_hours])
-            avoided_hours_print = ",".join([str(x) for x in avoided_hours])
-            out+=f"|  (Preferred hours: {preferred_hours_print}. Avoided hours: {avoided_hours_print})\n"
+            if colors:
+                preferred_hours = inp.preferred_hours_per_professor[i]
+                avoided_hours = inp.hours_to_avoid_per_professor[i]
+                preferred_hours_print = ",".join([str(x) for x in preferred_hours])
+                avoided_hours_print = ",".join([str(x) for x in avoided_hours])
+                out+=f"|\t{GREEN}{preferred_hours_print}{RESET}\t|\t{RED}{avoided_hours_print}{RESET}\n"
             
 
         print(first_line+"\n"+out)
@@ -453,7 +451,7 @@ if __name__ == '__main__':
     timetable = Timetable(inp.number_of_professors, inp.number_of_days, inp.number_of_hours, inp.number_of_classes)
     timetable.solve()
     timetable.print_stats()
-    # timetable.print_classes()
+    timetable.print_classes()
     
     timetable.print_professors()
 
