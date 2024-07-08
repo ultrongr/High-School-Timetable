@@ -1,4 +1,3 @@
 pymprog
 numpy
-scipy
 matplotlib

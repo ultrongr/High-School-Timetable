@@ -217,6 +217,7 @@ class Timetable:
         first_line = first_line[:-1]
         first_line += "Preferred/Avoided hours"
         out =  "\n"
+        pad_after="" if inp.number_of_hours>=6 else " "
         for i in range(self.number_of_profs):
             out+=f"Prof {i}\t"
             for d in range(self.number_of_days):
@@ -231,15 +232,16 @@ class Timetable:
                     flag = [ self.K[i][d][h][c].primal for c in range(self.number_of_classes)]
                     if sum(flag) == 0:
                         if (d, h) in inp.unavailable_hours_per_professor[i]:    
-                            out+=" X "
+                            out+=" X" + pad_after
                         else:
-                            out+=" - "
+                            out+=" -" + pad_after
                     else:
                         index = flag.index(1)
-                        out+=" " + inp.class_names[index] + " "
+                        out+=" " + inp.class_names[index] + pad_after
                 if colors:
                     out+=RESET
-                # out+="|\t"
+                if inp.number_of_hours>=6:                  
+                    out+="\t"
             if colors:
                 preferred_hours = inp.preferred_hours_per_professor[i]
                 avoided_hours = inp.hours_to_avoid_per_professor[i]
