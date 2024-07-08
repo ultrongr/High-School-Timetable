@@ -4,8 +4,8 @@ np.random.seed(0)
 
 number_of_classes = 3
 number_of_days = 5
-number_of_hours = 5
-number_of_professors = 15
+number_of_hours = 6
+
 
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 days_initials = ['M', 'T', 'W', 'Th', 'F']
@@ -13,20 +13,35 @@ class_names = ["A", "B", "C"]
 
 ## Create the required hours per class per proffessor:
 ## for example [[2,2,2], ...] means that the proffesor with id 0 needs 2 hours for each class
+
+data = [
+    (3, 2, 2), ## Γλώσσα
+    (2, 2, 2), ## Λογοτεχνία
+    (2, 2, 2), ## Αρχαία Ελληνική Γλώσσα
+    (2, 2, 2), ## Αρχαία Ελληνικά Κείμενα από Μετάφραση
+    (4, 4, 4), ## Μαθηματικά
+    (1, 2, 2), ## Φυσική
+    (0, 1, 1), ## Χημεία
+    (1, 1, 1), ## Βιολογία
+    (1, 2, 0), ## Γεωγραφία
+    (2, 2, 2), ## Ιστορία
+    (2, 2, 2), ## Θρησκευτικά
+    (2, 2, 2), ## Αγγλικά
+    (2, 2, 2), ## Γαλλικά
+    (0, 0, 2), ## Κοινωνική και Πολιτική Αγωγή
+    (1, 0, 0), ## Οικιακή Οικονομία
+    (1, 1, 1), ## Τεχνολογία
+    (2, 1, 1), ## Πληροφορική
+    (1, 1, 1), ## Μουσική
+    (1, 1, 1), ## Καλλιτεχνικά
+    
+]
+number_of_professors = len(data)
 required_hours_per_professor_per_class = [[] for _ in range(number_of_professors)]
 for class_id in range(number_of_classes):
-    hours_left_for_class = number_of_hours*number_of_days ## Number of hours left to distribute for each class
     for professor_id in range(number_of_professors):
-        if hours_left_for_class == 0:
-            required_hours_per_professor_per_class[professor_id].append(int(0))
-            continue
-            
-        try:
-            prof_hours_for_class = np.random.randint(1, min(5, hours_left_for_class))
-        except ValueError:
-            prof_hours_for_class = hours_left_for_class
-        required_hours_per_professor_per_class[professor_id].append(int(prof_hours_for_class))
-        hours_left_for_class -= prof_hours_for_class
+        required_hours_per_professor_per_class[professor_id].append(data[professor_id][class_id])
+
 
 ## Create the max hours per class per day for each professor
 ## For example [[2,2,2], ...] means that the proffesor with id 0 can teach each class for up to 2 hours a day
