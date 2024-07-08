@@ -9,6 +9,7 @@ number_of_professors = 15
 
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 days_initials = ['M', 'T', 'W', 'Th', 'F']
+class_names = ["A", "B", "C"]
 
 ## Create the required hours per class per proffessor:
 ## for example [[2,2,2], ...] means that the proffesor with id 0 needs 2 hours for each class
@@ -103,6 +104,9 @@ for professor_id in range(number_of_professors):
     while ind2 in [pref_1, pref_2, ind1]:
         ind2 = np.random.randint(0, number_of_hours)
     hours_to_avoid_per_professor[professor_id] = [ind1, ind2]
+
+
+prefers_consecutive_hours = [np.random.randint(-1,2) for _ in range(number_of_professors)] # -1: No, 0: Indifferent, 1: Yes
 
 
 if __name__ == '__main__':

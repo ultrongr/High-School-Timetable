@@ -195,6 +195,41 @@ class Timetable:
             out+="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
             print(out)
 
+    def print_professors(self):
+
+        if not self.solved:
+            print("Model has not been solved yet")
+            return
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+        
+        first_line = "P\\D\t|\t"
+        for i in range(self.number_of_days):
+            first_line += f"{inp.days_initials[i]}\t|\t"
+        
+        out =  "\n"
+        for i in range(self.number_of_profs):
+            out+=f"Prof {i}\t"
+            for d in range(self.number_of_days):
+                out+="|"
+                for h in range(self.number_of_hours):
+                    flag = [ self.K[i][d][h][c].primal for c in range(self.number_of_classes)]
+                    if sum(flag) == 0:
+                        if (d, h) in inp.unavailable_hours_per_professor[i]:    
+                            out+=" X "
+                        else:
+                            out+=" - "
+                    else:
+                        index = flag.index(1)
+                        out+=" " + inp.class_names[index] + " "
+                # out+="|\t"
+        
+            out+="|\n"
+            
+
+        print(first_line+"\n"+out)
+
+        
+
     def print_stats(self):
         if not self.solved:
             print("Model has not been solved yet")
@@ -394,6 +429,7 @@ if __name__ == '__main__':
     
     timetable = Timetable(inp.number_of_professors, inp.number_of_days, inp.number_of_hours, inp.number_of_classes)
     timetable.solve()
-    timetable.print_stats()
-    timetable.print_classes()
-    timetable.show_stats()
+    # timetable.print_stats()
+    # timetable.print_classes()
+    # timetable.show_stats()
+    timetable.print_professors()
