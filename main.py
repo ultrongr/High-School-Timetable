@@ -213,6 +213,7 @@ class Timetable:
         first_line = "P\\D\t|\t"
         for i in range(self.number_of_days):
             first_line += f"{inp.days_initials[i]}\t|\t"
+        first_line = first_line[:-1]
         first_line += "Preferred/Avoided hours"
         out =  "\n"
         for i in range(self.number_of_profs):
@@ -243,7 +244,7 @@ class Timetable:
                 avoided_hours = inp.hours_to_avoid_per_professor[i]
                 preferred_hours_print = ",".join([str(x) for x in preferred_hours])
                 avoided_hours_print = ",".join([str(x) for x in avoided_hours])
-                out+=f"|\t{GREEN}{preferred_hours_print}{RESET}\t|\t{RED}{avoided_hours_print}{RESET}\n"
+                out+=f"|  {GREEN}{preferred_hours_print}{RESET} | {RED}{avoided_hours_print}{RESET}\n"
             
 
         print(first_line+"\n"+out)
