@@ -39,20 +39,7 @@ for class_id in range(number_of_classes):
         # max_hours_per_professor_per_class_per_day[professor_id].append(np.random.randint(1, 4))
 
 
-## Create the unavailable hours for each professor
-## For example:
-## [[(0, 0), (2, 3)], [(4,4)], ...] means that the proffesor with id 0 is unavailable on 
-## Monday (day 0) hour 0 and on Wednesday (day 2) hour 3
-## while the professor with id 1 is unavailable on Friday (day 4) hour 4
-unavailable_hours_per_professor = [[] for _ in range(number_of_professors)]
-for professor_id in range(number_of_professors):
-    # for i in range(5): # Used to create a timetable with almost no unavailable hours
-    #     for j in range(4):
-    #         unavailable_hours_per_professor[professor_id].append((i, j))
-    for _ in range(np.random.randint(2,10)): # Number of unavailable hours
-        day = np.random.randint(0, number_of_days)
-        hour = np.random.randint(0, number_of_hours)
-        unavailable_hours_per_professor[professor_id].append((day, hour))
+
 
 
 ## Create the preferred days for each professor
@@ -105,9 +92,23 @@ for professor_id in range(number_of_professors):
         ind2 = np.random.randint(0, number_of_hours)
     hours_to_avoid_per_professor[professor_id] = [ind1, ind2]
 
+## Create the unavailable hours for each professor
+## For example:
+## [[(0, 0), (2, 3)], [(4,4)], ...] means that the proffesor with id 0 is unavailable on 
+## Monday (day 0) hour 0 and on Wednesday (day 2) hour 3
+## while the professor with id 1 is unavailable on Friday (day 4) hour 4
+unavailable_hours_per_professor = [[] for _ in range(number_of_professors)]
+for professor_id in range(number_of_professors):
 
-prefers_consecutive_hours = [np.random.randint(-1,2) for _ in range(number_of_professors)] # -1: No, 0: Indifferent, 1: Yes
+    for _ in range(np.random.randint(2,10)): # Number of unavailable hours
+        day = np.random.randint(0, number_of_days)
+        if day in preferred_days_per_professor[professor_id]: # Reducing the amount of unavailable hours on preferred days (not 0)
+            day = np.random.randint(0, number_of_days)
 
+        hour = np.random.randint(0, number_of_hours)
+        if hour in preferred_hours_per_professor[professor_id]: # Reducing the amount of unavailable hours on preferred hours (not 0)
+            hour = np.random.randint(0, number_of_hours)
+        unavailable_hours_per_professor[professor_id].append((day, hour))
 
 if __name__ == '__main__':
     pass

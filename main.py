@@ -104,8 +104,8 @@ class Timetable:
         
         params = {
             "coverage": 100,
-            "preferred_days": 1,
-            "avoidance_days": 1,
+            "preferred_days": 2,
+            "avoidance_days": 2,
             "preferred_hours": 0.5,
             "avoidance_hours": 0.5,
             
@@ -202,6 +202,17 @@ class Timetable:
             return
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
         
+        colors = True
+
+        if colors:
+            RED = "\033[31m"
+            GREEN = "\033[32m"
+            YELLOW = "\033[33m"
+            BLUE = "\033[34m"
+            MAGENTA = "\033[35m"
+            CYAN = "\033[36m"
+            RESET = "\033[0m"
+
         first_line = "P\\D\t|\t"
         for i in range(self.number_of_days):
             first_line += f"{inp.days_initials[i]}\t|\t"
@@ -211,6 +222,12 @@ class Timetable:
             out+=f"Prof {i}\t"
             for d in range(self.number_of_days):
                 out+="|"
+                if colors:
+                    if d in inp.preferred_days_per_professor[i]:
+                        out+=GREEN
+                    elif d in inp.days_to_avoid_per_professor[i]:
+                        out+=RED
+
                 for h in range(self.number_of_hours):
                     flag = [ self.K[i][d][h][c].primal for c in range(self.number_of_classes)]
                     if sum(flag) == 0:
@@ -221,9 +238,14 @@ class Timetable:
                     else:
                         index = flag.index(1)
                         out+=" " + inp.class_names[index] + " "
+                if colors:
+                    out+=RESET
                 # out+="|\t"
-        
-            out+="|\n"
+            preferred_hours = inp.preferred_hours_per_professor[i]
+            avoided_hours = inp.hours_to_avoid_per_professor[i]
+            preferred_hours_print = ",".join([str(x) for x in preferred_hours])
+            avoided_hours_print = ",".join([str(x) for x in avoided_hours])
+            out+=f"|  (Preferred hours: {preferred_hours_print}. Avoided hours: {avoided_hours_print})\n"
             
 
         print(first_line+"\n"+out)
@@ -364,6 +386,7 @@ class Timetable:
                         if self.K[i][avoided_day][h][c].primal == 1:
                             counter+=1
             avoided_days_stats.append(counter/total_hours if total_hours!=0 else 0)
+        
 
         axs[0, 1].bar(range(len(avoided_days_stats)), avoided_days_stats)
         axs[0, 1].set_title('Percentage of Hours Taught on Avoided Days')
@@ -388,7 +411,7 @@ class Timetable:
                             counter+=1
             preferred_hours_stats.append(counter/total_hours if total_hours!=0 else 0)
 
-        axs[1, 0].bar(range(len(preferred_hours_stats)), avoided_days_stats)
+        axs[1, 0].bar(range(len(preferred_hours_stats)), preferred_hours_stats)
         axs[1, 0].set_title('Percentage of Hours Taught on Preferred Hours')
         axs[1, 0].set_xlabel('Professor id')
         axs[1, 0].set_ylabel('Percentage of weekly hours')
@@ -410,7 +433,7 @@ class Timetable:
                             counter+=1
             avoided_hours_stats.append(counter/total_hours if total_hours!=0 else 0)
 
-        axs[1, 1].bar(range(len(avoided_hours_stats)), avoided_days_stats)
+        axs[1, 1].bar(range(len(avoided_hours_stats)), avoided_hours_stats)
         axs[1, 1].set_title('Percentage of Hours Taught on Avoided Hours')
         axs[1, 1].set_xlabel('Professor id')
         axs[1, 1].set_ylabel('Percentage of weekly hours')
@@ -429,7 +452,9 @@ if __name__ == '__main__':
     
     timetable = Timetable(inp.number_of_professors, inp.number_of_days, inp.number_of_hours, inp.number_of_classes)
     timetable.solve()
-    # timetable.print_stats()
+    timetable.print_stats()
     # timetable.print_classes()
-    # timetable.show_stats()
+    
     timetable.print_professors()
+
+    timetable.show_stats()
