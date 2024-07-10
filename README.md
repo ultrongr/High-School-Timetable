@@ -27,6 +27,7 @@ This is a timetable generator for Greek high schools utilizing Linear Programmin
 
 2. **Install the required packages**
 
+   - 
         ```bash
         pip install -r requirements.txt
         ```
