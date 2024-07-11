@@ -3,7 +3,7 @@ import pymprog
 
 import input_data as inp
 # import input_data_non_complete as inp
-# import input_data_real as inp
+import input_data_real as inp
 
 
 class Timetable:
@@ -173,7 +173,7 @@ class Timetable:
         Example for class A: 
 
         Class A:
-        H\D:    M       T       W       Th      F
+        H\\D:    M       T       W       Th      F
         0       5       6       4       5       5
         1       3       1       7       1       1
         2       2       7       4       5       4
@@ -206,12 +206,12 @@ class Timetable:
             out+="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
             print(out)
 
-    def print_professors(self):
+    def print_professors(self): 
         """Prints the timetable for each professor
         
         Example for professor 0:
-        P\D     |       M       |       T       |       W       |       Th      |       F       |Preferred/Avoided hours
-        Prof 0  | B  -  -  -  - | X  -  -  X  - | -  -  -  -  - | -  -  -  -  - | B  -  C  A  C |  0,2 | 1,3
+        P\\D     |       M       |       T       |       W       |       Th      |       F       |Preferred/Avoided hours
+        Prof 0  | B  -  -  -  -  | X  -  -  X  - | -  -  -  -  - | -  -  -  -  - | B  -  C  A  C |  0,2 | 1,3
         """
 
         if not self.solved:
