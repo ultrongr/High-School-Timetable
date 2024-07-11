@@ -168,6 +168,19 @@ class Timetable:
         
 
     def print_classes(self):
+        """Prints the timetable for each class
+        
+        Example for class A: 
+
+        Class A:
+        H\D:    M       T       W       Th      F
+        0       5       6       4       5       5
+        1       3       1       7       1       1
+        2       2       7       4       5       4
+        3       6       6       2       8       0
+        4       6       7       7       1       4"""
+
+
         if not self.solved:
             print("Model has not been solved yet")
             return
@@ -194,6 +207,12 @@ class Timetable:
             print(out)
 
     def print_professors(self):
+        """Prints the timetable for each professor
+        
+        Example for professor 0:
+        P\D     |       M       |       T       |       W       |       Th      |       F       |Preferred/Avoided hours
+        Prof 0  | B  -  -  -  - | X  -  -  X  - | -  -  -  -  - | -  -  -  -  - | B  -  C  A  C |  0,2 | 1,3
+        """
 
         if not self.solved:
             print("Model has not been solved yet")
@@ -255,6 +274,11 @@ class Timetable:
         
 
     def print_stats(self):
+        """Prints the statistics of the timetable
+        Preferred Days...
+        Avoided Days...
+        Preferred Hours...
+        Avoided Hours..."""
         if not self.solved:
             print("Model has not been solved yet")
             return
@@ -339,6 +363,7 @@ class Timetable:
         print(f"Number of hours taught in preferred hours: {counter_preferred_hours}")
 
     def show_stats(self):
+        """Uses matplotlib to visualize the statistics of the timetable"""
         if not self.solved:
             print("Model has not been solved yet")
             return
