@@ -6,6 +6,7 @@ number_of_classes = 3
 number_of_days = 5
 number_of_hours = 6
 
+limits_for_unavailability = [2,10]
 
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 days_initials = ['M', 'T', 'W', 'Th', 'F']
@@ -106,7 +107,7 @@ for professor_id in range(number_of_professors):
 unavailable_hours_per_professor = [[] for _ in range(number_of_professors)]
 for professor_id in range(number_of_professors):
 
-    for _ in range(np.random.randint(2,10)): # Number of unavailable hours
+    for _ in range(np.random.randint(*limits_for_unavailability)): # Number of unavailable hours
         day = np.random.randint(0, number_of_days)
         if day in preferred_days_per_professor[professor_id]: # Reducing the amount of unavailable hours on preferred days (not 0)
             day = np.random.randint(0, number_of_days)
